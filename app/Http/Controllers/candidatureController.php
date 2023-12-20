@@ -131,16 +131,17 @@ class CandidatureController extends Controller
             return response()->json(['message' => 'Non autorisé. Seuls les admins peuvent faire cette action.'], 403);
         }
 
-        // Récupérer les candidats acceptés
-        $candidatsRefuses = Candidature::where('status', 'refusee')->get();
+        // Récupérer les candidats refusés
+        $candidatsRefuses = Candidature::where('status', 'refuse')->get();
 
-        // Vérifier si des candidats acceptés ont été trouvés
+        // Vérifier si des candidats refusés ont été trouvés
         if ($candidatsRefuses->isEmpty()) {
             return response()->json(['message' => 'Aucune candidature refusée trouvée'], 404);
         }
 
-        // Retourner la liste des candidats acceptés en JSON
+        // Retourner la liste des candidats refusés en JSON
         return response()->json($candidatsRefuses, 200);
     }
+
 
 }
