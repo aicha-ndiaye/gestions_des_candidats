@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class candidature extends Model
 {
     use HasFactory;
+    protected $guarded = [];
     public function candidature()
     {
         return $this->belongsTo(User::class);

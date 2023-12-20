@@ -102,29 +102,6 @@ class FormationController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
-
-
-    public function accepter($id){
-
-        $formation=Formation::Find($id);
-        $formation->accepte=true;
-        $formation->save();
-        return response()->json(['message'=>'formation accepter','formation'=>$formation],200);
-
-    }
-
-    public function refuser($id){
-        $formation= new Formation();
-        $formation=Formation::Find($id);
-        $formation->est_accepte=false;
-        $formation->save();
-        return response()->json(['message'=>'formation refuser','formation'=>$formation],200);
-
-    }
-
     public function destroy($id)
     {
         if (!auth()->check()) {

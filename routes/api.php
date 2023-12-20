@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\candidature;
+use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\FormationController;
 use App\Http\Controllers\UserRoleController;
 
@@ -34,5 +36,11 @@ route::post("create",[FormationController::class,'create'])->middleware("auth:ap
 route::get("index_Formation",[FormationController::class,"index_Formation"]);
 route::post("update/{id}",[FormationController::class,'update'])->middleware("auth:api");
 route::get("destroy/{id}",[FormationController::class,'destroy'])->middleware("auth:api");
-route::get("accepter",[FormationController::class,'accepter']);
-route::get("refuser",[FormationController::class,'refuser']);
+
+
+route::post("enregistrerCandidature",[CandidatureController::class,'enregistrerCandidature'])->middleware("auth:api");
+route::get("accepterCandidature/{id}",[CandidatureController::class,'accepterCandidature'])->middleware("auth:api");
+route::get("refuserCandidature/{id}",[CandidatureController::class,'refuserCandidature'])->middleware("auth:api");
+route::get("indexCandidature",[CandidatureController::class,'indexCandidature'])->middleware("auth:api");
+route::get("candidatsAcceptes",[CandidatureController::class,'candidatsAcceptes'])->middleware("auth:api");
+route::get("candidatsRefuses",[CandidatureController::class,'candidatsRefuses'])->middleware("auth:api");
