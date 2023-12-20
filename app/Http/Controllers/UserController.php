@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Formation;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\User_role;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Formation;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
@@ -15,103 +18,136 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
 
-    public function ajouterCandidat(Request $request)
-    {
-         $request->validate([
-            'nom' => 'required|string|min:4|regex:/^[a-zA-Z]+$/',
-             'prenom' => 'required|string|min:4|regex:/^[a-zA-Z]+$/',
-             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/',
-            'competence'=>'required',
-            'motivation'=>'required',
-        ]);
 
-        $rolecandidat = Role::where('nomRole', 'candidat')->first();
-        $user = User::create([
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $request->role_id,
-            'motivation' => $request->motivation,
-            'competences' => $request->competences
-        ]);
+     public function ajouterCandidat(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'nom' => ['required', 'string', 'min:4', 'regex:/^[a-zA-Z]+$/'],
+             'prenom' => ['required', 'string', 'min:4', 'regex:/^[a-zA-Z ]+$/'],
+             'email' => ['required', 'email', 'unique:users,email'],
+             'password' => Rules\Password::defaults(),
+             'motivation' => ['required'],
+             'competences' => ['required'],
+         ]);
 
-        $user->roles()->attach($rolecandidat);
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
 
-        return response()->json(['message' => 'candidat ajouté avec succès'], 201);
+         $roleCandidat = Role::where('nomRole', 'candidat')->first();
 
-}
+         $user = User::create([
+             'nom' => $request->nom,
+             'prenom' => $request->prenom,
+             'email' => $request->email,
+             'password' => Hash::make($request->password),
+             'role_id' => $roleCandidat->id,
+             'motivation' => $request->motivation,
+             'competences' => $request->competences,
+         ]);
+
+         return response()->json(['message' => 'Candidat ajouté avec succès'], 201);
+     }
 
 
-public function ajouterAdmin(Request $request)
-    {
-        $request->validate([
-            'nom' => 'required|string|min:4|regex:/^[a-zA-Z]+$/',
-            'prenom' => 'required|string|min:4|regex:/^[a-zA-Z]+$/',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/',
-            'competence'=>'required',
-            'motivation'=>'required',
-        ]);
-        if ($request->fails()) {
-            return response()->json($request->errors(), 400);
+     public function ajouterAdmin(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'nom' => ['required', 'string', 'min:4', 'regex:/^[a-zA-Z]+$/'],
+             'prenom' => ['required', 'string', 'min:4', 'regex:/^[a-zA-Z ]+$/'],
+             'email' => ['required', 'email', 'unique:users,email'],
+             'password' => Rules\Password::defaults(),
 
-        $roleadmin = Role::where('nomRole', 'admin')->first();
-        $user = User::create([
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $request->role_id,
+         ]);
 
-        ]);
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
 
-        $user->roles()->attach($roleadmin);
+         $roleAdmin = Role::where('nomRole', 'admin')->first();
 
-        return response()->json(['message' => 'admin ajouté avec succès'], 201);
-    }
-}
 
-public function login(Request $request)
-{
 
-    // data validation
-    $request->validate([
-        "email" => "required|email",
-        "password" => "required"
-    ]);
+         $user = User::create([
+             'nom' => $request->nom,
+             'prenom' => $request->prenom,
+             'email' => $request->email,
+             'password' => Hash::make($request->password),
+             'role_id' => $roleAdmin->id,
 
-    // JWTAuth
-    $token = JWTAuth::attempt([
-        "email" => $request->email,
-        "password" => $request->password
-    ]);
+         ]);
 
-    if (!empty($token)) {
+         return response()->json(['message' => 'Admin ajouté avec succès'], 201);
+     }
 
-        return response()->json([
-            "status" => true,
-            "message" => "utilisateur connecter avec succe",
-            "token" => $token
-        ]);
-    }
+     public function login(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             "email" => "required|email",
+             "password" => Rules\Password::defaults()
+         ]);
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
 
-    return response()->json([
-        "status" => false,
-        "message" => "details invalide"
-    ]);
-}
+         // JWTAuth
+         $token = JWTAuth::attempt([
+             "email" => $request->email,
+             "password" => $request->password
+         ]);
+
+         if (!empty($token)) {
+
+             return response()->json([
+                 "status" => true,
+                 "message" => "utilisateur connecté avec succe",
+                 "token" => $token,
+                 "user"=>auth()->user()
+             ]);
+         }
+
+         return response()->json([
+             "status" => false,
+             "message" => "details invalide"
+         ]);
+     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function index($id)
+    public function index()
     {
-        $user=User::FindOrFail($id);
+        $user=User::all();
         return response()->json($user, 200);
 
     }
+
+    public function listeCandidats()
+{
+
+    if (!auth()->check()) {
+        return response()->json(['message' => 'Non autorisé , vous devez vous connecté'], 401);
+    }
+    $user = auth()->user();
+
+    if (!auth()->user()->role_id===2) {
+        return response()->json(['message' => 'Non autorisé. Seuls les administrateurs peuvent ajouter des formations.'], 403);
+    }
+    // Récupérer le rôle "candidat"
+    $roleCandidat = Role::where('nomRole', 'candidat')->first();
+
+    // Vérifier si le rôle "candidat" existe
+    if (!$roleCandidat) {
+        return response()->json(['message' => 'Rôle "candidat" non trouvé'], 404);
+    }
+
+    // Récupérer tous les utilisateurs ayant le rôle "candidat"
+    $candidats =User::where('role_id',1)->get();
+
+    // Retourner la liste des candidats
+    return response()->json($candidats, 200);
+}
+
 
 
 

@@ -11,23 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('formations', function (Blueprint $table) {
+        Schema::create('candidature', function (Blueprint $table) {
             $table->id();
-            $table->string('nomFormation');
-            $table->string('description');
-            $table->string('lieuFormation');
-            $table->date('dateDebut');
-            $table->date('dateFin');
+            $table->enum('status',['accepte','refuse','en_attente'])->default('en_attente');
+            $table->foreignId('formation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('formation');
+        Schema::dropIfExists('candidature');
     }
 };

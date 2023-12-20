@@ -20,9 +20,8 @@ return new class extends Migration
                 $table->string('email')->unique();
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password');
-                $table->string('competences');
-                $table->string('motivation');
-                $table->enum('status',['accepte','refuse','en_attente'])->default('en_attente');
+                $table->string('competences')->nullable();
+                $table->string('motivation')->nullable();
                 $table->foreignIdFor(Role::class)->constrained()->onDelete('cascade');
                 $table->rememberToken();
                 $table->timestamps();

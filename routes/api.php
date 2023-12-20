@@ -28,10 +28,11 @@ Route::post('/ajouterRole', [UserRoleController::class, 'ajouterRole']);
 route::post("ajouterAdmin",[UserController::class,"ajouterAdmin"]);
 route::post("login",[UserController::class,"login"]);
 route::get("index",[UserController::class,"index"]);
+route::get("listeCandidats",[UserController::class,"listeCandidats"])->middleware("auth:api");
 
-route::post("create",[FormationController::class,'create']);
+route::post("create",[FormationController::class,'create'])->middleware("auth:api");
 route::get("index_Formation",[FormationController::class,"index_Formation"]);
-route::post("update",[FormationController::class,'update']);
-route::get("archiver_formation",[FormationController::class,'archiver_formation']);
+route::post("update/{id}",[FormationController::class,'update'])->middleware("auth:api");
+route::get("destroy/{id}",[FormationController::class,'destroy'])->middleware("auth:api");
 route::get("accepter",[FormationController::class,'accepter']);
 route::get("refuser",[FormationController::class,'refuser']);

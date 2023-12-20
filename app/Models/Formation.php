@@ -11,4 +11,11 @@ class Formation extends Model
     use HasFactory;
     protected $guarded = [];
 
+    public function candidature()
+    {
+        return $this->belongsToMany(candidature::class);
+    }
+   
+
+
 }

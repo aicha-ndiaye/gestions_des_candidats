@@ -62,15 +62,32 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-    public function roles()
+    // public function roles()
+    // {
+    //     return $this->belongsToMany(Role::class);
+    // }
+
+
+    public function candidature()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsTo(candidature::class);
     }
+
+
 
     public function isAdmin()
     {
+
         return $this->roles->contains('nomRole', 'admin');
     }
-
+    public function formation()
+    {
+        // Si l'utilisateur a plusieurs formations, utilisez hasMany
+        return $this->hasMany(Formation::class);
+    }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_users');
+    }
 
 }
